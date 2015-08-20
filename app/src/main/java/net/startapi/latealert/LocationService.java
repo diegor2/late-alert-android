@@ -15,4 +15,5 @@ public class LocationService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
 }
