@@ -61,4 +61,13 @@ public class MainActivity extends ActionBarActivity {
         mWebView.loadUrl(url);
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if(mWebView.canGoBack()) {
+            mWebView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }

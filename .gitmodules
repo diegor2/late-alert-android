@@ -1,0 +1,3 @@
+[submodule "app/src/main/assets/late-alert"]
+	path = app/src/main/assets/late-alert
+	url = git@bitbucket.org:tatilattanzi/late-alert.git
