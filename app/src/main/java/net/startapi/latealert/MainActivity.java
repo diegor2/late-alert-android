@@ -1,22 +1,33 @@
 package net.startapi.latealert;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.SaveCallback;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String LOCALHOST = "http://localhost:8000/late-alert/";
     public static final String RESOURCE = "android.resource://%s/raw/";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private WebView mWebView;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +36,15 @@ public class MainActivity extends ActionBarActivity {
         mWebView = new WebView(this);
         setContentView(mWebView);
 
+        // TODO move to Application
         Parse.initialize(this, "imFg5O96lfxzjWsfRhpeprmYEJzggfjKsekYjR04",
                 "o4QqUiGIWA5sEkDH7hdHEF80YjroTYKwd1B2iwzD");
         ParseInstallation.getCurrentInstallation().saveInBackground();
+
+        int hasService = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (ConnectionResult.SUCCESS != hasService) {
+            GooglePlayServicesUtil.showErrorNotification(hasService, this);
+        }
 
         ParsePush.subscribeInBackground("", new SaveCallback() {
             @Override
@@ -39,6 +56,16 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         });
+
+
+        Intent intent = new Intent(this, UpdateLocationService.class);
+        startService(intent);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
@@ -64,10 +91,31 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public void onBackPressed() {
-        if(mWebView.canGoBack()) {
+        if (mWebView.canGoBack()) {
             mWebView.goBack();
         } else {
             super.onBackPressed();
         }
+    }
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            Log.d(TAG, String.format("Location %f %f",
+                    mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 }

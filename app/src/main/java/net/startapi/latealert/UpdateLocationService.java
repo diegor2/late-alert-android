@@ -2,16 +2,21 @@ package net.startapi.latealert;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.*;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Process;
 import android.util.Log;
 import android.widget.Toast;
 
-public class LocationService extends Service {
+public class UpdateLocationService extends Service {
 
-    private static final String TAG = LocationService.class.getSimpleName();
+    private static final String TAG = UpdateLocationService.class.getSimpleName();
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
+
 
     // Handler that receives messages from the thread
     private final class ServiceHandler extends Handler {
@@ -51,6 +56,7 @@ public class LocationService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+
     }
 
     @Override
@@ -77,4 +83,6 @@ public class LocationService extends Service {
     public void onDestroy() {
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
+
+
 }

@@ -31,7 +31,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/fire"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:name=".MainActivity"
@@ -44,7 +44,7 @@
         </activity>
 
         <service
-            android:name=".LocationService"
+            android:name=".UpdateLocationService"
             android:enabled="true"
             android:exported="true" >
         </service>
