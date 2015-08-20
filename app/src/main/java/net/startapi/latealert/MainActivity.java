@@ -2,8 +2,15 @@ package net.startapi.latealert;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.SaveCallback;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -17,6 +24,21 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         mWebView = new WebView(this);
         setContentView(mWebView);
+
+        Parse.initialize(this, "imFg5O96lfxzjWsfRhpeprmYEJzggfjKsekYjR04",
+                "o4QqUiGIWA5sEkDH7hdHEF80YjroTYKwd1B2iwzD");
+        ParseInstallation.getCurrentInstallation().saveInBackground();
+
+        ParsePush.subscribeInBackground("", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+                } else {
+                    Log.e("com.parse.push", "failed to subscribe for push", e);
+                }
+            }
+        });
     }
 
     @Override
