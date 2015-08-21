@@ -1,6 +1,5 @@
 package net.startapi.latealert;
 
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -35,9 +34,6 @@ public class MainActivity extends AppCompatActivity implements
             GooglePlayServicesUtil.showErrorNotification(hasService, this);
         }
 
-        Intent intent = new Intent(this, UpdateLocationService.class);
-        startService(intent);
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -48,8 +44,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        String url = getString(R.string.url);
-
+        String url = getString(R.string.url_heroku);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override

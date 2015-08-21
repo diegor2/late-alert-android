@@ -1,8 +1,6 @@
 package net.startapi.latealert;
 
 import android.app.Application;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -70,11 +68,9 @@ public class AlertApp extends Application {
             }
         });
 
-        Intent i = new Intent(this, UpdateLocationService.class);
-        PendingIntent service = PendingIntent.getService(this, 0, i, 0);
-
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, mListener);
+        mLocationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, mListener);
     }
 
 }
