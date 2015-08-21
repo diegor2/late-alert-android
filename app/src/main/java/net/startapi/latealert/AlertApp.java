@@ -1,6 +1,8 @@
 package net.startapi.latealert;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -11,48 +13,111 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by diego on 8/20/15.
  */
 public class AlertApp extends Application implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+    /**
+     * A Google Calendar API service object used to access the API.
+     * Note: Do not confuse this class with API library's model classes, which
+     * represent specific data structures.
+     */
+    private static com.google.api.services.calendar.Calendar mService;
+
+    private static GoogleAccountCredential credential;
+
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
+    final HttpTransport transport = AndroidHttp.newCompatibleTransport();
+    final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
     private static final long MIN_DISTANCE = 1;
     private static final long MIN_TIME = 10000;
     private LocationManager mLocationManager;
-
     private static final String TAG = AlertApp.class.getSimpleName();
-    private LocationManager mManager;
 
+    private LocationManager mManager;
     LocationListener mListener = new LocationListener() {
 
         @Override
         public void onLocationChanged(Location location) {
             Log.d(TAG, String.format("Location %f %f",
                     location.getLatitude(), location.getLongitude()));
+            update();
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             Log.d(TAG, "onStatusChanged " + provider + " " + status);
+            update();
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             Log.d(TAG, "onProviderEnabled " + provider);
+            update();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             Log.d(TAG, "onProviderDisabled " + provider);
+            update();
         }
 
     };
+
+    private void update() {
+        // List the next 10 events from the primary calendar.
+        DateTime now = new DateTime(System.currentTimeMillis());
+        try {
+            Events events = AlertApp.getCalendarService().events().list("primary")
+                    .setMaxResults(10)
+                    .setTimeMin(now)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            List<Event> items = events.getItems();
+
+            for (Event event : items) {
+                DateTime start = event.getStart().getDateTime();
+                if (start == null) {
+                    start = event.getStart().getDate();
+                }
+
+                String location = event.getLocation();
+                if(location != null){
+                    location = "<unknown>";
+                }
+                Log.d(TAG, "Event " + event.getDescription() + " @ " + location + " on " + start.toStringRfc3339());
+
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "oops", e);
+        }
+
+    }
+
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -88,6 +153,18 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+
+        // Initialize credentials and service object.
+        SharedPreferences settings = getSharedPreferences(TAG, Context.MODE_PRIVATE);
+        credential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff())
+                .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
+
+        mService = new com.google.api.services.calendar.Calendar.Builder(
+                transport, jsonFactory, credential)
+                .setApplicationName("Google Calendar API Android Quickstart")
+                .build();
     }
 
     @Override
@@ -103,5 +180,13 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    public static Calendar getCalendarService() {
+        return mService;
+    }
+
+    public static GoogleAccountCredential getCredential() {
+        return credential;
     }
 }

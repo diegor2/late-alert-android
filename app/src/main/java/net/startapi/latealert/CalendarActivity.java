@@ -28,27 +28,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CalendarActivity extends Activity implements View.OnClickListener {
-    /**
-     * A Google Calendar API service object used to access the API.
-     * Note: Do not confuse this class with API library's model classes, which
-     * represent specific data structures.
-     */
-    com.google.api.services.calendar.Calendar mService;
 
-    GoogleAccountCredential credential;
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+
     private TextView mStatusText;
     private TextView mResultsText;
-    final HttpTransport transport = AndroidHttp.newCompatibleTransport();
-    final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+    private
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+
 
     /**
      * Create the main activity.
+     *
      * @param savedInstanceState previously saved instance data.
      */
     @Override
@@ -56,17 +50,6 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        // Initialize credentials and service object.
-        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-        credential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName(settings.getString(PREF_ACCOUNT_NAME, null));
-
-        mService = new com.google.api.services.calendar.Calendar.Builder(
-                transport, jsonFactory, credential)
-                .setApplicationName("Google Calendar API Android Quickstart")
-                .build();
     }
 
     /**
@@ -91,17 +74,18 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * Called when an activity launched here (specifically, AccountPicker
      * and authorization) exits, giving you the requestCode you started it with,
      * the resultCode it returned, and any additional data from it.
+     *
      * @param requestCode code indicating which activity result is incoming.
-     * @param resultCode code indicating the result of the incoming
-     *     activity result.
-     * @param data Intent (containing result data) returned by incoming
-     *     activity result.
+     * @param resultCode  code indicating the result of the incoming
+     *                    activity result.
+     * @param data        Intent (containing result data) returned by incoming
+     *                    activity result.
      */
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     isGooglePlayServicesAvailable();
@@ -113,7 +97,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
                     String accountName =
                             data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        credential.setSelectedAccountName(accountName);
+                        AlertApp.getCredential().setSelectedAccountName(accountName);
                         SharedPreferences settings =
                                 getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
@@ -140,7 +124,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * user can pick an account.
      */
     private void refreshResults() {
-        if (credential.getSelectedAccountName() == null) {
+        if (AlertApp.getCredential().getSelectedAccountName() == null) {
             chooseAccount();
         } else {
             if (isDeviceOnline()) {
@@ -170,6 +154,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * Fill the data TextView with the given List of Strings; called from
      * background threads and async tasks that need to update the UI (in the
      * UI thread).
+     *
      * @param dataStrings a List of Strings to populate the main TextView with.
      */
     public void updateResultsText(final List<String> dataStrings) {
@@ -192,6 +177,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
     /**
      * Show a status message in the list header TextView; called from background
      * threads and async tasks that need to update the UI (in the UI thread).
+     *
      * @param message a String to display in the UI header TextView.
      */
     public void updateStatus(final String message) {
@@ -208,12 +194,13 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * account.
      */
     private void chooseAccount() {
-        startActivityForResult(
-                credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+        startActivityForResult(AlertApp.getCredential().newChooseAccountIntent(),
+                REQUEST_ACCOUNT_PICKER);
     }
 
     /**
      * Checks whether the device currently has a network connection.
+     *
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
@@ -227,8 +214,9 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * Check that Google Play services APK is installed and up to date. Will
      * launch an error dialog for the user to update Google Play Services if
      * possible.
+     *
      * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
+     * date on this device; false otherwise.
      */
     private boolean isGooglePlayServicesAvailable() {
         final int connectionStatusCode =
@@ -236,7 +224,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
         if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
             showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
             return false;
-        } else if (connectionStatusCode != ConnectionResult.SUCCESS ) {
+        } else if (connectionStatusCode != ConnectionResult.SUCCESS) {
             return false;
         }
         return true;
@@ -245,8 +233,9 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
     /**
      * Display an error dialog showing that Google Play Services is missing
      * or out of date.
+     *
      * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
+     *                             Google Play Services on this device.
      */
     void showGooglePlayServicesAvailabilityErrorDialog(
             final int connectionStatusCode) {
@@ -264,7 +253,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.new_event:
                 startActivity(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(getString(R.string.url_heroku))));

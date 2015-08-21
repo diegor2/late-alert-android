@@ -21,6 +21,7 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
 
     /**
      * Constructor.
+     *
      * @param activity MainActivity that spawned this task.
      */
     ApiAsyncTask(CalendarActivity activity) {
@@ -29,6 +30,7 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
 
     /**
      * Background task to call Google Calendar API.
+     *
      * @param params no parameters needed for this task.
      */
     @Override
@@ -55,6 +57,7 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
 
     /**
      * Fetch a list of the next 10 events from the primary calendar.
+     *
      * @return List of Strings describing returned events.
      * @throws IOException
      */
@@ -62,7 +65,7 @@ public class ApiAsyncTask extends AsyncTask<Void, Void, Void> {
         // List the next 10 events from the primary calendar.
         DateTime now = new DateTime(System.currentTimeMillis());
         List<String> eventStrings = new ArrayList<String>();
-        Events events = mActivity.mService.events().list("primary")
+        Events events = AlertApp.getCalendarService().events().list("primary")
                 .setMaxResults(10)
                 .setTimeMin(now)
                 .setOrderBy("startTime")
