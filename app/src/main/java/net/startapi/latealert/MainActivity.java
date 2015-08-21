@@ -29,16 +29,6 @@ public class MainActivity extends AppCompatActivity implements
         mWebView = new WebView(this);
         setContentView(mWebView);
 
-        int hasService = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (ConnectionResult.SUCCESS != hasService) {
-            GooglePlayServicesUtil.showErrorNotification(hasService, this);
-        }
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
     }
 
     @Override

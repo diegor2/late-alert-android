@@ -7,6 +7,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -16,7 +20,7 @@ import com.parse.SaveCallback;
 /**
  * Created by diego on 8/20/15.
  */
-public class AlertApp extends Application {
+public class AlertApp extends Application implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final long MIN_DISTANCE = 1;
     private static final long MIN_TIME = 10000;
@@ -49,6 +53,7 @@ public class AlertApp extends Application {
         }
 
     };
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     public void onCreate() {
@@ -71,6 +76,32 @@ public class AlertApp extends Application {
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, mListener);
+
+
+        int hasService = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (ConnectionResult.SUCCESS != hasService) {
+            GooglePlayServicesUtil.showErrorNotification(hasService, this);
+        }
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }
