@@ -17,7 +17,6 @@ public class UpdateLocationService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
 
-
     // Handler that receives messages from the thread
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
