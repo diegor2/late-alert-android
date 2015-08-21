@@ -12,11 +12,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.SaveCallback;
 
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -28,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //getWindow().requestFeature(Window.FEATURE_PROGRESS);
@@ -36,27 +30,10 @@ public class MainActivity extends AppCompatActivity implements
         mWebView = new WebView(this);
         setContentView(mWebView);
 
-        // TODO move to Application
-        Parse.initialize(this, "imFg5O96lfxzjWsfRhpeprmYEJzggfjKsekYjR04",
-                "o4QqUiGIWA5sEkDH7hdHEF80YjroTYKwd1B2iwzD");
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-
         int hasService = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (ConnectionResult.SUCCESS != hasService) {
             GooglePlayServicesUtil.showErrorNotification(hasService, this);
         }
-
-        ParsePush.subscribeInBackground("", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
-                }
-            }
-        });
-
 
         Intent intent = new Intent(this, UpdateLocationService.class);
         startService(intent);
@@ -86,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         mWebView.loadUrl(url);
-
     }
 
     @Override
@@ -97,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements
             super.onBackPressed();
         }
     }
-
 
     @Override
     public void onConnected(Bundle bundle) {
