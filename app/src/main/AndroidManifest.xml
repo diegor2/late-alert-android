@@ -26,12 +26,12 @@
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-<!--
+
     <permission
         android:name="net.startapi.latealert.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <uses-permission android:name="net.startapi.latealert.permission.C2D_MESSAGE" />
--->
+
     <!-- parse.com tutorial code-->
 
     <!-- Android Studio shows an error, but it is working...-->
@@ -82,12 +82,12 @@
                 <!--
                   IMPORTANT: Change "com.parse.starter" to match your app's package name.
                 -->
- <!--
+<!--
                 <category android:name="net.startapi.latealert" />
             </intent-filter>
         </receiver>
-
 -->
+
         <!-- parse.com tutorial code-->
         <meta-data
             android:name="com.google.android.gms.version"

@@ -7,6 +7,10 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
 import com.google.maps.model.LatLng;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.List;
 
@@ -54,10 +58,28 @@ public class CalendarUtils {
                 Log.d(TAG, "Event " + event.getDescription() + " @ " + location
                         + " on " + start.toStringRfc3339() + " ETA " + secondsToArrive);
 
-                if (secondsToArrive > secondsToStartEvent) {
-                    String[] to = getEmailTo(event);
-                    Log.e(TAG, "sendmail");
-                    //sendMail(to, event.getSummary());
+                if ((secondsToArrive > secondsToStartEvent) && (null != event)) {
+                    String  recipients  = getEmailTo(event);
+
+                    String message = "late alert";
+                    String mailApi = "https://fast-basin-1765.herokuapp.com/mail.php?emails="
+                            + recipients + "&message=" + message;
+                    Log.e(TAG, "sendmail " + mailApi);
+
+                    try{
+                        URL url = new URL(mailApi);
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        try {
+                            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                        } catch (Exception e){
+                            Log.e(TAG, "sendmail", e);
+                        } finally {
+                            urlConnection.disconnect();
+                        }
+                    } catch (Exception e){
+                        Log.e(TAG, "sendmail", e);
+                    }
+
                 }
 
             //}
@@ -118,14 +140,14 @@ public class CalendarUtils {
      * @param event
      * @return destinarios do e-mail
      */
-    public String[] getEmailTo(Event event) {
-        String emailTo = "";
+    public String getEmailTo(Event event) {
+        String emailTo = "";;
 
         for (EventAttendee attendee : event.getAttendees()) {
-            emailTo += attendee.getEmail() + ";";
+            emailTo += attendee.getEmail() + ",";
         }
 
-        return emailTo.split(";");
+        return emailTo;
     }
 
 }
