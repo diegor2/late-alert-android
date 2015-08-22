@@ -1,87 +1,66 @@
 package net.startapi.latealert;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Process;
 import android.util.Log;
-import android.widget.Toast;
 
-public class UpdateLocationService extends Service {
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
+
+import java.util.List;
+
+public class UpdateLocationService extends IntentService {
 
     private static final String TAG = UpdateLocationService.class.getSimpleName();
-    private Looper mServiceLooper;
-    private ServiceHandler mServiceHandler;
+    private List<Event> mEvents;
 
-    // Handler that receives messages from the thread
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
+    public UpdateLocationService() {
+        super(TAG);
+    }
+
+    @Override
+    protected void onHandleIntent(Intent workIntent) {
+        double latitude = workIntent.getExtras().getDouble(AlertApp.EXTRA_LAT);
+        double longitude = workIntent.getExtras().getDouble(AlertApp.EXTRA_LONG);
+        Log.d(TAG, "latlog " + latitude + ", " + longitude);
+        if (null != mEvents) {
+            loadEvents();
         }
-        @Override
-        public void handleMessage(Message msg) {
-            // Normally we would do some work here, like download a file.
-            // For our sample, we just sleep for 5 seconds.
-            long endTime = System.currentTimeMillis() + 5*1000;
-            while (System.currentTimeMillis() < endTime) {
-                synchronized (this) {
-                    try {
-                        wait(endTime - System.currentTimeMillis());
-                    } catch (Exception e) {
-                        Log.e(TAG, "handleMessage", e);
-                    }
-                }
+        checkDistance();
+    }
+
+    private void checkDistance() {
+        if(null == mEvents) return;
+        for (Event event : mEvents) {
+            DateTime start = event.getStart().getDateTime();
+            if (start == null) {
+                start = event.getStart().getDate();
             }
-            // Stop the service using the startId, so that we don't stop
-            // the service in the middle of handling another job
-            stopSelf(msg.arg1);
+
+            String location = event.getLocation();
+            if (location != null) {
+                location = "<unknown>";
+            }
+            Log.d(TAG, "Event " + event.getDescription() + " @ " + location + " on " + start.toStringRfc3339());
         }
     }
 
-    @Override
-    public void onCreate() {
-        // Start up the thread running the service.  Note that we create a
-        // separate thread because the service normally runs in the process's
-        // main thread, which we don't want to block.  We also make it
-        // background priority so CPU-intensive work will not disrupt our UI.
-        HandlerThread thread = new HandlerThread("ServiceStartArguments",
-                Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
-
-        // Get the HandlerThread's Looper and use it for our Handler
-        mServiceLooper = thread.getLooper();
-        mServiceHandler = new ServiceHandler(mServiceLooper);
+    private void loadEvents() {
+       // List the next 10 events from the primary calendar.
+        DateTime now = new DateTime(System.currentTimeMillis());
+        try {
+            Events events = AlertApp.getCalendarService().events().list("primary")
+                    .setMaxResults(10)
+                    .setTimeMin(now)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            mEvents = events.getItems();
+        } catch (Exception e) {
+            Log.e(TAG, "oops", e);
+        }
 
     }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
-
-        // For each start request, send a message to start a job and deliver the
-        // start ID so we know which request we're stopping when we finish the job
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        mServiceHandler.sendMessage(msg);
-
-        // If we get killed, after returning from here, restart
-        return START_STICKY;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // We don't provide binding, so return null
-        return null;
-    }
-
-    @Override
-    public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
-    }
-
 
 }
