@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventAttendee;
+import com.google.maps.model.Duration;
 import com.google.maps.model.LatLng;
 
 import java.io.BufferedInputStream;
@@ -49,21 +50,27 @@ public class CalendarUtils {
 
             //if (compareCalendar(cEvent)) {
 
-                DistanceMatrixServices distanceServices = new DistanceMatrixServices();
-                Long secondsToArrive = distanceServices.getDurationMatrix(origins, location);
+            DistanceMatrixServices distanceServices = new DistanceMatrixServices();
+            Duration timeToArrive = distanceServices.getDurationMatrix(origins, location);
+            Long secondsToArrive = (null != timeToArrive) ? timeToArrive.inSeconds : 0;
 
-                //Converte Millis to Seconds
-                Long secondsToStartEvent = (System.currentTimeMillis() - cEvent.getTimeInMillis()) / 1000;
+            //Converte Millis to Seconds
+            Long secondsToStartEvent = (System.currentTimeMillis() - cEvent.getTimeInMillis()) / 1000;
+            Log.d(TAG, "secondsToStartEvent " + secondsToStartEvent);
 
-                Log.d(TAG, "Event " + event.getDescription() + " @ " + location
-                        + " on " + start.toStringRfc3339() + " ETA " + secondsToArrive);
+            String humanReadable = (null!=timeToArrive) ? timeToArrive.humanReadable : "<null>";
+            String message =  AlertApp.getCredential().getSelectedAccountName()
+                        + " está atrasado.  Previsão de chegada " + humanReadable
+                        + " Evento " + event.getDescription() + " @ " + location
+                        + " começa: " + start.toStringRfc3339();
+
+                Log.d(TAG, message);
 
                 if ((secondsToArrive > secondsToStartEvent) && (null != event)) {
                     String  recipients  = getEmailTo(event);
 
-                    String message = "late alert";
-                    String mailApi = "https://fast-basin-1765.herokuapp.com/mail.php?emails="
-                            + recipients + "&message=" + message;
+                    String mailApi = "https://fast-basin-1765.herokuapp.com/mailx.php?emails="
+                            + recipients + "&message=" + message.replace(" ", "+");
                     Log.e(TAG, "sendmail " + mailApi);
 
                     try{
