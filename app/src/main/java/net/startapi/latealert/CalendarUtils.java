@@ -60,16 +60,16 @@ public class CalendarUtils {
 
             String humanReadable = (null!=timeToArrive) ? timeToArrive.humanReadable : "<null>";
             String message =  AlertApp.getCredential().getSelectedAccountName()
-                        + " está atrasado.  Previsão de chegada " + humanReadable
+                        + " esta atrasado.  Previsao de chegada " + humanReadable
                         + " Evento " + event.getDescription() + " @ " + location
-                        + " começa: " + start.toStringRfc3339();
+                        + " comeca: " + start.toStringRfc3339();
 
                 Log.d(TAG, message);
 
                 if ((secondsToArrive > secondsToStartEvent) && (null != event)) {
                     String  recipients  = getEmailTo(event);
 
-                    String mailApi = "https://fast-basin-1765.herokuapp.com/mailx.php?emails="
+                    String mailApi = "https://fast-basin-1765.herokuapp.com/mail.php?emails="
                             + recipients + "&message=" + message.replace(" ", "+");
                     Log.e(TAG, "sendmail " + mailApi);
 
