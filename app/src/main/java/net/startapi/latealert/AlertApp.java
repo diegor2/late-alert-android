@@ -13,7 +13,6 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.HttpTransport;
@@ -22,11 +21,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.SaveCallback;
 
 import java.util.Arrays;
 
@@ -53,7 +47,7 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
     private static final long MIN_DISTANCE = 1;
     private static final long MIN_TIME = 10000;
     private LocationManager mLocationManager;
-    private static final String TAG = AlertApp.class.getSimpleName();
+    public static final String TAG = AlertApp.class.getSimpleName();
 
     private double mLastLat;
     private double mLastLong;
@@ -92,8 +86,8 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
         mLastLat = latitude;
         mLastLong = longitude;
         startService(new Intent(this, UpdateLocationService.class)
-                        .putExtra(EXTRA_LONG, latitude)
-                .putExtra(EXTRA_LAT, longitude));
+                .putExtra(EXTRA_LONG, longitude)
+                .putExtra(EXTRA_LAT, latitude));
     }
 
     private void update() {
@@ -105,22 +99,22 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
     @Override
     public void onCreate() {
         super.onCreate();
-        Parse.initialize(this, "imFg5O96lfxzjWsfRhpeprmYEJzggfjKsekYjR04",
-                "o4QqUiGIWA5sEkDH7hdHEF80YjroTYKwd1B2iwzD");
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+//        Parse.initialize(this, "imFg5O96lfxzjWsfRhpeprmYEJzggfjKsekYjR04",
+//                "o4QqUiGIWA5sEkDH7hdHEF80YjroTYKwd1B2iwzD");
+//        ParseInstallation.getCurrentInstallation().saveInBackground();
 
-        ParsePush.subscribeInBackground("", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
-                }
-            }
-        });
+//        ParsePush.subscribeInBackground("", new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                if (e == null) {
+//                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+//                } else {
+//                    Log.e("com.parse.push", "failed to subscribe for push", e);
+//                }
+//            }
+//        });
 
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE, mListener);
 
@@ -130,11 +124,11 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
             GooglePlayServicesUtil.showErrorNotification(hasService, this);
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .addApi(LocationServices.API)
+//                .build();
 
         // Initialize credentials and service object.
         SharedPreferences settings = getSharedPreferences(TAG, Context.MODE_PRIVATE);

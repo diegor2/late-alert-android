@@ -16,15 +16,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class CalendarActivity extends Activity implements View.OnClickListener {
@@ -99,7 +91,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
                     if (accountName != null) {
                         AlertApp.getCredential().setSelectedAccountName(accountName);
                         SharedPreferences settings =
-                                getPreferences(Context.MODE_PRIVATE);
+                                getSharedPreferences(AlertApp.TAG, Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(PREF_ACCOUNT_NAME, accountName);
                         editor.commit();

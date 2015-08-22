@@ -7,12 +7,14 @@ import android.util.Log;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
+import com.google.maps.model.LatLng;
 
 import java.util.List;
 
 public class UpdateLocationService extends IntentService {
 
     private static final String TAG = UpdateLocationService.class.getSimpleName();
+    private final CalendarUtils mUtils = new CalendarUtils();
     private List<Event> mEvents;
 
     public UpdateLocationService() {
@@ -23,31 +25,19 @@ public class UpdateLocationService extends IntentService {
     protected void onHandleIntent(Intent workIntent) {
         double latitude = workIntent.getExtras().getDouble(AlertApp.EXTRA_LAT);
         double longitude = workIntent.getExtras().getDouble(AlertApp.EXTRA_LONG);
-        Log.d(TAG, "latlog " + latitude + ", " + longitude);
-        if (null != mEvents) {
-            loadEvents();
-        }
-        checkDistance();
+        Log.d(TAG, "latlong " + latitude + ", " + longitude);
+        checkDistance(new LatLng(latitude, longitude));
     }
 
-    private void checkDistance() {
-        if(null == mEvents) return;
-        for (Event event : mEvents) {
-            DateTime start = event.getStart().getDateTime();
-            if (start == null) {
-                start = event.getStart().getDate();
-            }
-
-            String location = event.getLocation();
-            if (location != null) {
-                location = "<unknown>";
-            }
-            Log.d(TAG, "Event " + event.getDescription() + " @ " + location + " on " + start.toStringRfc3339());
+    private void checkDistance(LatLng latLng) {
+        if (null == mEvents) {
+            loadEvents();
         }
+        mUtils.compareEvent(mEvents, latLng);
     }
 
     private void loadEvents() {
-       // List the next 10 events from the primary calendar.
+        // List the next 10 events from the primary calendar.
         DateTime now = new DateTime(System.currentTimeMillis());
         try {
             Events events = AlertApp.getCalendarService().events().list("primary")
@@ -58,7 +48,7 @@ public class UpdateLocationService extends IntentService {
                     .execute();
             mEvents = events.getItems();
         } catch (Exception e) {
-            Log.e(TAG, "oops", e);
+            Log.e(TAG, "oops");
         }
 
     }
