@@ -4,9 +4,12 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="url">file:///android_asset/late-alert/index.html</string>
-    <string name="url_heroku">https://fast-basin-1765.herokuapp.com/</string>
+    <string name="url_heroku">http://fast-basin-1765.herokuapp.com/</string>
+    <string name="url_heroku_view">http://fast-basin-1765.herokuapp.com/events.html</string>
     <string name="url_local">http://localhost:8000/late-alert/</string>
     <string name="url_test">http://fb.me/</string>
     <string name="status">Retrieving data…</string>
     <string name="new_event">Novo evento</string>
+    <string name="view_event">Visualizar eventos</string>
+    <string name="copyright">StartAPI. 2015. All rights reserved.</string>
 </resources>

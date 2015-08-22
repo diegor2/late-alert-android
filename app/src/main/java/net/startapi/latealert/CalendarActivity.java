@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -25,11 +26,11 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
 
     private TextView mStatusText;
     private TextView mResultsText;
-    private
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
+    private Handler mHandler = new Handler();
 
 
     /**
@@ -150,7 +151,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
      * @param dataStrings a List of Strings to populate the main TextView with.
      */
     public void updateResultsText(final List<String> dataStrings) {
-        runOnUiThread(new Runnable() {
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (dataStrings == null) {
@@ -163,7 +164,7 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
                     mResultsText.setText(TextUtils.join("\n\n", dataStrings));
                 }
             }
-        });
+        }, 5000);
     }
 
     /**
@@ -249,6 +250,10 @@ public class CalendarActivity extends Activity implements View.OnClickListener {
             case R.id.new_event:
                 startActivity(new Intent(Intent.ACTION_VIEW,
                         Uri.parse(getString(R.string.url_heroku))));
+                break;
+            case R.id.view_event:
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(getString(R.string.url_heroku_view))));
                 break;
             default:
         }

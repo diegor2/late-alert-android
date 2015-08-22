@@ -44,8 +44,8 @@ public class AlertApp extends Application implements GoogleApiClient.ConnectionC
     private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
     final HttpTransport transport = AndroidHttp.newCompatibleTransport();
     final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-    private static final long MIN_DISTANCE = 100;
-    private static final long MIN_TIME = 60000;
+    private static final long MIN_DISTANCE = 1000;
+    private static final long MIN_TIME = 600000;
     private LocationManager mLocationManager;
     public static final String TAG = AlertApp.class.getSimpleName();
 
