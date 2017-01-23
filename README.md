@@ -10,4 +10,4 @@ Demos
 [![Creating a new event on Late Alert](http://img.youtube.com/vi/-bx7EtrtIKY/0.jpg)](http://www.youtube.com/watch?v=-bx7EtrtIKY "Creating a new event on Late Alert")
 
 
-[![Late Alert email notification](http://img.youtube.com/vi/xkzGBSaMZkw/0.jpg)](http://www.youtube.com/watch?v=-xkzGBSaMZkw "Late Alert email notification")
+[![Late Alert email notification](http://img.youtube.com/vi/xkzGBSaMZkw/0.jpg)](http://www.youtube.com/watch?v=xkzGBSaMZkw "Late Alert email notification")
